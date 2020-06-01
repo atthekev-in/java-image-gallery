@@ -29,12 +29,26 @@ public class UserAdmin {
 	ua.connect("image_gallery", "kevin");
 	}
 
+	public boolean findUser(String userName) throws SQLException {
+	String sql = "select username from users where username = (?)";
+	PreparedStatement ps = conn.prepareStatement(sql);
+	ps.setString(1, userName);
+	ResultSet rs = ps.executeQuery();
+	if (rs.next()) {
+	return true;
+	} else {
+		return false;
+	}
+	}
+
 	public void listAllUsers() throws SQLException {
 		String sql = "select * from users;";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ResultSet rs = ps.executeQuery();
+		System.out.println("username\tpassword\tfull name");
+		System.out.println("-------------------------------------------");
 		while (rs.next()) {
-		System.out.println(rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3));
+		System.out.printf("%-15s %-15s %-15s %n", rs.getString(1), rs.getString(2), rs.getString(3));
 		}
 		rs.close();
 	}
@@ -53,18 +67,37 @@ public class UserAdmin {
 		}
 
 	public void editUser(String userName, String password, String fullName) throws SQLException {
-
-         	String sql = "update users set password = (?), full_name = (?) where username = (?)";
+		String sql = "";
+		if (password.equals("") && fullName.equals("")) {
+		return;
+		}
+		if (!password.equals("") && !fullName.equals("")) {
+         	 sql = "update users set password = (?), full_name = (?) where username = (?)";
+		}
+		else if (password.equals("")) {
+		sql = "update users set full_name = (?) where username = (?)";
+		}
+		else {
+		sql = "update users set password = (?) where username = (?)";
+		}
 		try {
                 	PreparedStatement ps = conn.prepareStatement(sql);
-                	if (!password.equals("")) {
+                	if (!password.equals("") && !fullName.equals("")) {
 			ps.setString(1, password);
-		        }
-               		 if (!fullName.equals("")) {
 			ps.setString(2, fullName);
-			}
 			ps.setString(3, userName);
-                	ps.executeUpdate();
+			ps.executeUpdate();
+		        }
+               		else  if (password.equals("")) {
+			ps.setString(1, fullName);
+			ps.setString(2, userName);
+			ps.executeUpdate();
+			}
+			else {
+			ps.setString(1, password);
+			ps.setString(2, userName);
+			ps.executeUpdate();
+			}
 		} catch (SQLException e) {
 		System.out.println(e.getMessage());
 		}
