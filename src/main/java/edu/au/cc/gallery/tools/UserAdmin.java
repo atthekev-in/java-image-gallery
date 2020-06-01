@@ -31,6 +31,7 @@ public class UserAdmin {
 
 	public boolean findUser(String userName) throws SQLException {
 	String sql = "select username from users where username = (?)";
+
 	PreparedStatement ps = conn.prepareStatement(sql);
 	ps.setString(1, userName);
 	ResultSet rs = ps.executeQuery();
@@ -39,10 +40,12 @@ public class UserAdmin {
 	} else {
 		return false;
 	}
+
 	}
 
 	public void listAllUsers() throws SQLException {
 		String sql = "select * from users;";
+		try {
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ResultSet rs = ps.executeQuery();
 		System.out.println("username\tpassword\tfull name");
@@ -51,6 +54,9 @@ public class UserAdmin {
 		System.out.printf("%-15s %-15s %-15s %n", rs.getString(1), rs.getString(2), rs.getString(3));
 		}
 		rs.close();
+		} catch (SQLException e) {
+		System.out.println(e.getMessage());
+		}
 	}
 
 	public void createUser(String userName, String password, String fullName) throws SQLException {
