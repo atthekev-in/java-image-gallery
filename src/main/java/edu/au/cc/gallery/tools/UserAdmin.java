@@ -3,122 +3,93 @@ package edu.au.cc.gallery.tools;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
+import java.util.Scanner;
+import edu.au.cc.gallery.DB;
 
 import java.sql.*;
 
 public class UserAdmin {
 
-	private static final String dbUrl = "jdbc:postgresql://demo-database-2.cunmw1tbyasz.us-east-2.rds.amazonaws.com/image_gallery"; 
-	private Connection conn;
+ private DB db;
 
+public UserAdmin() throws SQLException {
+this.db = new DB();
+db.connect();
+}
 
-	public void connect(String userName, String password) throws SQLException {
-        try {
-             	conn = DriverManager.getConnection(dbUrl, userName , password);
-        }
-        catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(1);
-        	}
+  public void menu() {
+      System.out.println("\n1) List Users\n"
+                       + "2) Add User\n"
+                       + "3) Edit User\n"
+                       + "4) Delete User\n"
+                       + "5) Quit\n");
+      System.out.print("Enter command: ");
 
-	}
+}
 
-	public static void demo() throws SQLException {
-	UserAdmin ua = new UserAdmin();
-	ua.connect("image_gallery", "kevin");
-	}
+ public int select() throws Exception {
+   //UserAdmin ua = new UserAdmin();
+  // ua.connect("image_gallery", "kevin");
 
-	public boolean findUser(String userName) throws SQLException {
-	String sql = "select username from users where username = (?)";
+   Scanner sc = new Scanner(System.in);
+   int selection = 0;
+   while (selection != 5) {
+   menu();
 
-	PreparedStatement ps = conn.prepareStatement(sql);
-	ps.setString(1, userName);
-	ResultSet rs = ps.executeQuery();
-	if (rs.next()) {
-	return true;
-	} else {
-		return false;
-	}
-
-	}
-
-	public void listAllUsers() throws SQLException {
-		String sql = "select * from users;";
-		try {
-		PreparedStatement ps = conn.prepareStatement(sql);
-		ResultSet rs = ps.executeQuery();
-		System.out.println("username\tpassword\tfull name");
-		System.out.println("-------------------------------------------");
-		while (rs.next()) {
-		System.out.printf("%-15s %-15s %-15s %n", rs.getString(1), rs.getString(2), rs.getString(3));
+   try {
+      String userName = "";
+      String password = "";
+      String fullName = "";
+      selection = Integer.parseInt(sc.nextLine());
+      switch (selection) {
+      case 1 : db.listAllUsers();
+           break;
+      case 2 : System.out.print("Username: ");
+               userName = sc.nextLine();
+               System.out.print("Password: ");
+               password = sc.nextLine();
+               System.out.print("Full name: ");
+               fullName = sc.nextLine();
+	       if (db.findUser(userName)) {
+		System.out.println("User " + userName + " already in database.");
+		break;
 		}
-		rs.close();
-		} catch (SQLException e) {
-		System.out.println(e.getMessage());
+	       db.createUser(userName, password, fullName);
+               break;
+      case 3 : System.out.print("Username: ");
+               userName = sc.nextLine();
+               System.out.print("Password (press enter to keep current): ");
+               password = sc.nextLine();
+               System.out.print("Full name (press enter to keep current): ");
+               fullName = sc.nextLine();
+	       if (!db.findUser(userName)) {
+		System.out.println("User " + userName  + " does not exist in the database." );
+		break;
 		}
-	}
-
-	public void createUser(String userName, String password, String fullName) throws SQLException {
-		try {
-		String sql = "insert into users values (?, ?, ?)";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setString(1, userName);
-		ps.setString(2, password);
-		ps.setString(3, fullName);
-		ps.executeUpdate();
-		    } catch (SQLException e) {
-			System.out.println("Error: User with username " + userName + " already exists. ");
-		    }
+	       db.editUser(userName, password, fullName);
+	       break;
+      case 4 : System.out.print("Username: ");
+		userName = sc.nextLine();
+		if (!db.findUser(userName)) {
+		System.out.println("User with username " + userName + " does not exist");
+		break;
 		}
-
-	public void editUser(String userName, String password, String fullName) throws SQLException {
-		String sql = "";
-		if (password.equals("") && fullName.equals("")) {
-		return;
-		}
-		if (!password.equals("") && !fullName.equals("")) {
-         	 sql = "update users set password = (?), full_name = (?) where username = (?)";
-		}
-		else if (password.equals("")) {
-		sql = "update users set full_name = (?) where username = (?)";
-		}
-		else {
-		sql = "update users set password = (?) where username = (?)";
-		}
-		try {
-                	PreparedStatement ps = conn.prepareStatement(sql);
-                	if (!password.equals("") && !fullName.equals("")) {
-			ps.setString(1, password);
-			ps.setString(2, fullName);
-			ps.setString(3, userName);
-			ps.executeUpdate();
-		        }
-               		else  if (password.equals("")) {
-			ps.setString(1, fullName);
-			ps.setString(2, userName);
-			ps.executeUpdate();
-			}
-			else {
-			ps.setString(1, password);
-			ps.setString(2, userName);
-			ps.executeUpdate();
-			}
-		} catch (SQLException e) {
-		System.out.println(e.getMessage());
-		}
-	}
-
-	public void deleteUser(String userName) throws SQLException {
-
-		String sql = "delete from users where username = (?)";
-		try {
-		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setString(1, userName);
-		ps.executeUpdate();
-		} catch (SQLException e) {
-		System.out.println(e.getMessage());
-		}
-	}
+		db.deleteUser(userName);
+		System.out.println("User deleted");
+		break;
+      case 5 : System.out.println("Goodbye");
+               System.exit(0);
+               break;
+      default : System.out.println("Invalid Input. Please try again.");
+      
+      }
+   }
+   catch (Exception e) {
+      System.out.println("Invalid Input. Please try again.");
+   }
+   }
+   return selection;
+   
+   }
 
 }
