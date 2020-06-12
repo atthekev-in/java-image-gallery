@@ -36,11 +36,6 @@ public class DB {
 	}
 
 
-	public void  demo() throws Exception {
-	DB db = new DB();
-	db.connect();
-	db.listAllUsers();
-	}
 
 	public ArrayList<String> getUserNames() throws SQLException {
     String sql = "select username from users;";
@@ -122,38 +117,40 @@ public class DB {
 		sql = "update users set password = (?) where username = (?)";
 		}
 		try {
+			connect();
                 	PreparedStatement ps = connection.prepareStatement(sql);
                 	if (!password.equals("") && !fullName.equals("")) {
 			ps.setString(1, password);
 			ps.setString(2, fullName);
 			ps.setString(3, userName);
-			ps.executeUpdate();
 		        }
                		else  if (password.equals("")) {
 			ps.setString(1, fullName);
 			ps.setString(2, userName);
-			ps.executeUpdate();
 			}
 			else {
 			ps.setString(1, password);
 			ps.setString(2, userName);
-			ps.executeUpdate();
 			}
+			ps.executeUpdate();
+
 		} catch (SQLException e) {
 		System.out.println(e.getMessage());
 		}
-	}
 
+	}
 	public void deleteUser(String userName) throws SQLException {
 
 		String sql = "delete from users where username = (?)";
 		try {
+		connect();
 		PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setString(1, userName);
 		ps.executeUpdate();
 		} catch (SQLException e) {
 		System.out.println(e.getMessage());
+		} finally {
+			connection.close();
 		}
 	}
-
 }
