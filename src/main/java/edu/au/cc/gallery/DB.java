@@ -2,29 +2,31 @@ package edu.au.cc.gallery;
 
 import java.sql.*;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
 public class DB {
 
-	private static final String dbUrl = "jdbc:postgresql://demo-database-2.cunmw1tbyasz.us-east-2.rds.amazonaws.com/image_gallery";
+	private static final String dbUrl = "jdbc:postgresql://image-gallery.cunmw1tbyasz.us-east-2.rds.amazonaws.com/";
 	private Connection connection;
-	private String getPassword() {
-		try(BufferedReader br = new BufferedReader(new FileReader("/home/ec2-user/.sql-passwd"))) {
-		String result = br.readLine();
+        private JSONObject getSecret() {
+	String s = Secrets.getSecretImageGallery();
+	return new JSONObject(s);
+        }
 
-		return result;
-		} catch (IOException ex) {
-		System.err.println("Error opening password file");
-	    	System.exit(1);
-	}
-	return null;
-	}
+        private String getPassword(JSONObject secret) {
+	return secret.getString("password");
+        }
+   
+
 	public void connect() throws SQLException {
 	try {
 
-		connection = DriverManager.getConnection(dbUrl, "image_gallery" , getPassword());
+		JSONObject secret = getSecret();
+		connection = DriverManager.getConnection(dbUrl, "image_gallery" , getPassword(secret));
 	}
 		 catch (Exception ex) {
 		ex.printStackTrace();

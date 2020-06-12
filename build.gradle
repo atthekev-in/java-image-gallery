@@ -30,6 +30,8 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.13.20')
 
     implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:secretsmanager'
+    implementation group: 'org.json', name: 'json', version: '20200518'
 
 
 
