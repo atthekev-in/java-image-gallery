@@ -1,7 +1,7 @@
 package edu.au.cc.gallery;
 
 import java.sql.*;
-
+import java.util.ArrayList;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -42,6 +42,25 @@ public class DB {
 	db.listAllUsers();
 	}
 
+	public ArrayList<String> getUserNames() throws SQLException {
+    String sql = "select username from users;";
+    ArrayList<String> users = new ArrayList<>();
+    try {
+        connect();
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            users.add(rs.getString(1));
+        }
+        rs.close();
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
+    finally {
+        connection.close();
+        return users;
+    }
+}
 	public boolean findUser(String userName) throws SQLException {
 	String sql = "select username from users where username = (?)";
 
@@ -72,18 +91,21 @@ public class DB {
 		}
 	}
 
-	public void createUser(String userName, String password, String fullName) throws SQLException {
+	public void createUser(String[] user) throws SQLException {
 		try {
-		String sql = "insert into users values (?, ?, ?)";
-		PreparedStatement ps = connection.prepareStatement(sql);
-		ps.setString(1, userName);
-		ps.setString(2, password);
-		ps.setString(3, fullName);
-		ps.executeUpdate();
-		    } catch (SQLException e) {
-			System.out.println("Error: User with username " + userName + " already exists. ");
-		    }
+			connect();
+			String sql = "insert into users values (?, ?, ?)";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			for (int i = 0; i < user.length; i++) {
+				ps.setString(i + 1, user[i]);
+			}
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Error: User with username " + user[0] + " already exists. ");
+		} finally {
+			connection.close();
 		}
+	}
 
 	public void editUser(String userName, String password, String fullName) throws SQLException {
 		String sql = "";

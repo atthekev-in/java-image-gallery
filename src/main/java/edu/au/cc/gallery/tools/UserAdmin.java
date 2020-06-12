@@ -54,7 +54,8 @@ db.connect();
 		System.out.println("User " + userName + " already in database.");
 		break;
 		}
-	       db.createUser(userName, password, fullName);
+		String[] newUser = {userName, password, fullName};
+	       db.createUser(newUser);
                break;
       case 3 : System.out.print("Username: ");
                userName = sc.nextLine();
