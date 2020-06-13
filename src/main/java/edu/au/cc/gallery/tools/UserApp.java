@@ -1,6 +1,7 @@
 package edu.au.cc.gallery.tools;
 
 import edu.au.cc.gallery.DB;
+import edu.au.cc.gallery.User;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class UserApp {
     public void addRoutes() {
         get("/admin", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
-            ArrayList<String> users = db.getUserNames();
+            ArrayList<User> users = db.getUsernameAndFullName();
             model.put("users", users);
             return new HandlebarsTemplateEngine().render(new ModelAndView(model, "admin.hbs"));
         });
@@ -36,6 +37,12 @@ public class UserApp {
             String user = req.params(":user");
             model.put("username", user);
             return new HandlebarsTemplateEngine().render(new ModelAndView(model, "editUser.hbs"));
+        });
+        get("/admin/deleteUser/:user", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+            String user = req.params(":user");
+            model.put("username", user);
+            return new HandlebarsTemplateEngine().render(new ModelAndView(model, "deleteUser.hbs"));        
         });
         post("/admin/addUser", (req, res) -> {
             String[] user = { req.queryParams("username"), req.queryParams("password"), req.queryParams("full_name") };

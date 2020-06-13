@@ -35,27 +35,31 @@ public class DB {
 
 	}
 
+	public ArrayList<User> getUsernameAndFullName() throws SQLException {
+		String sql = "select username, full_name from users;";
+		ArrayList<User> userData = new ArrayList<>();
+		connect();
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setFull_name(rs.getString("full_name"));
+				userData.add(user);
+			} 
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} finally {
+			connection.close();
+		}
+
+		return userData;
+	}
 
 
-	public ArrayList<String> getUserNames() throws SQLException {
-    String sql = "select username from users;";
-    ArrayList<String> users = new ArrayList<>();
-    try {
-        connect();
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            users.add(rs.getString(1));
-        }
-        rs.close();
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
-    finally {
-        connection.close();
-        return users;
-    }
-}
+
 	public boolean findUser(String userName) throws SQLException {
 	String sql = "select username from users where username = (?)";
 
@@ -154,3 +158,4 @@ public class DB {
 		}
 	}
 }
+

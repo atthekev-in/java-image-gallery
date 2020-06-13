@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete {{username}}</title>
+</head>
+<body>
+    <h1>Delete user with username {{username}}?</h1>
+<hr>
+        <form action="/admin/deleteUser" method="post" onsubmit="return confirm('Delete user {{username}}?');">
+         Delete User<input type="hidden" name="username" value="{{username}}" />
+            <input type="submit" name="delete" >
+        </form>
+<hr>
+    	<a href="/admin">Admin Panel</a>
+</body>
+</html>
+
+

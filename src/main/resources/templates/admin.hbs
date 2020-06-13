@@ -6,13 +6,21 @@
     <title>Admin</title>
 </head>
 <body>
-    <h1>Users</h1>
-        <ul class="users">
-           
-           {{#each users}}<li> {{this}}  <a href="/admin/editUser/{{this}}">Edit</a></li>
-            {{/each}}
-        </ul>
+    <h1>Java Image Gallery Users</h1>
+	<table>
+	<tr>
+	   <th>Username</th>
+	   <th>Full Name</th>
+	<tr>
+	{{#each users}}<tr>
+			<td>{{username}}</td><td>{{full_name}}</td>
+			<td><a href="/admin/editUser/{{username}}">Edit</a></td>
+			<td><a href="/admin/deleteUser/{{username}}">Delete</a></td>
+	</tr>
+	{{/each}}
+	</table>
         <hr>
+
         <a href="/admin/addUser">Add User</a>
 	</body>
 </html>
