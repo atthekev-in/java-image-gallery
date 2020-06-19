@@ -18,12 +18,19 @@ import spark.template.handlebars.HandlebarsTemplateEngine;
 public class App {
 
 	public static void main(String[] args) throws Exception {
+
+	String portString = System.getenv("JETTY_PORT");
+	if (portString == null || portString.equals("")) {
+	port(5000);
+	} else {
+		port(Integer.parseInt(portString));
+	}
+
 		DB db = new DB();
 
-		port(5000);
 		UserApp userApp = new UserApp();
 		userApp.addRoutes();
-
+	get("/hello", (req, res) -> "Hello");
 
 
 	}
