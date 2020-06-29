@@ -12,7 +12,7 @@ public class DB {
 
 	private static final String dbUrl = "jdbc:postgresql://image-gallery.cunmw1tbyasz.us-east-2.rds.amazonaws.com/";
 	private Connection connection;
-        private JSONObject getSecret() {
+	private JSONObject getSecret() {
 	String s = Secrets.getSecretImageGallery();
 	return new JSONObject(s);
         }
@@ -34,6 +34,23 @@ public class DB {
 	}
 
 	}
+
+	public User getUser(String username) throws SQLException {
+		connect();
+		String sql = "select * from users where username = ?;";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setString(1, username);
+		ResultSet rs = ps.executeQuery();
+		if (rs.next()) {
+			User user = new User(rs.getString("username"), rs.getString("password"), rs.getString("full_name"));
+			return user;
+		} else {
+			return null;
+		}
+
+	}
+
+
 
 	public ArrayList<User> getUsernameAndFullName() throws SQLException {
 		String sql = "select username, full_name from users;";
@@ -158,4 +175,5 @@ public class DB {
 		}
 	}
 }
+
 

@@ -5,6 +5,14 @@ public class User {
     private String password;
     private String full_name;
 
+    public User() {
+
+    }
+    public User(String username, String password, String full_name) {
+        this.username = username;
+        this.password = password;
+        this.full_name = full_name;
+    }
     public String getUsername() {
         return username;
     }
@@ -30,5 +38,7 @@ public class User {
     }
 
 
+
     
 }
+
