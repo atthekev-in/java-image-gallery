@@ -5,6 +5,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
@@ -51,6 +52,10 @@ public class S3 {
 
 		String result = br.readLine();
 		return result;
+	}
+	public void deleteObject(String bucketName, String key) throws Exception {
+		DeleteObjectRequest dor = DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
+		client.deleteObject(dor);
 	}
 
 	public static void demo() {

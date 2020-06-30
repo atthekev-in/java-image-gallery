@@ -50,14 +50,18 @@ public class UserApp {
 
     }
 
-    private String deleteImage(Request req, Response res) throws SQLException {
+    private String deleteImage(Request req, Response res) throws Exception {
         Map<String, Object> model = new HashMap<>();
         String imageId = req.params(":imageid");
         Postgres postgres = new Postgres();
         postgres.deleteImage(imageId);
+        S3 s3 = new S3();
+        s3.connect();
+        s3.deleteObject(bucketName, imageId);
         res.redirect("/view");
         return "";
     }
+
     private String viewLargeImage(Request req, Response res) throws Exception {
         Map<String, Object> model = new HashMap<>();
         S3 s3 = new S3();
