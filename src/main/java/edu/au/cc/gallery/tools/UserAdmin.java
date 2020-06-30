@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
-import edu.au.cc.gallery.DB;
+import edu.au.cc.gallery.data.DB;
 
 import java.sql.*;
 
@@ -94,3 +94,4 @@ db.connect();
    }
 
 }
+

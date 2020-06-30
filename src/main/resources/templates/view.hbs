@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+</head>
+<body>
+    <h1>Welcome User</h1>
+	<table>
+
+	{{#each images}}<tr>
+        <td><img src="data:image/jpeg;base64,{{imageString}}"><br><form action="/deleteImage" method="post" onsubmit="return confirm('Delete image?');">
+         Delete Image<input type="hidden" name="image" value="{{username}}" />
+            <input type="submit" name="delete" >
+        </form></td>
+			<td><a href="/viewSingleImage/{{username}}">View</a></td>
+			<td><a href="/admin/deleteUser/{{username}}">Delete</a></td>
+	</tr>
+	{{/each}}
+	</table>
+
+	</body>
+</html>
+

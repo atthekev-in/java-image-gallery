@@ -1,5 +1,6 @@
-package edu.au.cc.gallery;
+package edu.au.cc.gallery.data;
 
+import edu.au.cc.gallery.aws.*;
 import java.sql.*;
 import java.util.ArrayList;
 import org.json.JSONObject;
@@ -23,16 +24,50 @@ public class DB {
    
 
 	public void connect() throws SQLException {
-	try {
+		try {
 
-		JSONObject secret = getSecret();
-		connection = DriverManager.getConnection(dbUrl, "image_gallery" , getPassword(secret));
-	}
-		 catch (Exception ex) {
-		ex.printStackTrace();
-		System.exit(1);
+			JSONObject secret = getSecret();
+			connection = DriverManager.getConnection(dbUrl, "image_gallery", getPassword(secret));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.exit(1);
+		}
+
 	}
 
+	public void insertImage(Image image) throws SQLException {
+		String sql = "insert into images values (?, ?);";
+		try {
+			connect();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, image.getImageId());
+			ps.setString(2, image.getUsername());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Error");
+		} finally {
+			connection.close();
+		}
+	}
+
+	public ArrayList<Image> getAllImages(String sql, String username) throws SQLException {
+		ArrayList<Image> images = new ArrayList<>();
+		try {
+			connect();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				Image image = new Image(rs.getString("imageid"), rs.getString("username"));
+				images.add(image);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} finally {
+			connection.close();
+		}
+		return images;
 	}
 
 	public User getUser(String username) throws SQLException {
@@ -43,14 +78,14 @@ public class DB {
 		ResultSet rs = ps.executeQuery();
 		if (rs.next()) {
 			User user = new User(rs.getString("username"), rs.getString("password"), rs.getString("full_name"));
+			connection.close();
 			return user;
 		} else {
+			connection.close();
 			return null;
 		}
 
 	}
-
-
 
 	public ArrayList<User> getUsernameAndFullName() throws SQLException {
 		String sql = "select username, full_name from users;";
@@ -64,7 +99,7 @@ public class DB {
 				user.setUsername(rs.getString("username"));
 				user.setFull_name(rs.getString("full_name"));
 				userData.add(user);
-			} 
+			}
 			rs.close();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -75,35 +110,33 @@ public class DB {
 		return userData;
 	}
 
-
-
 	public boolean findUser(String userName) throws SQLException {
-	String sql = "select username from users where username = (?)";
+		String sql = "select username from users where username = (?)";
 
-	PreparedStatement ps = connection.prepareStatement(sql);
-	ps.setString(1, userName);
-	ResultSet rs = ps.executeQuery();
-	if (rs.next()) {
-	return true;
-	} else {
-		return false;
-	}
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setString(1, userName);
+		ResultSet rs = ps.executeQuery();
+		if (rs.next()) {
+			return true;
+		} else {
+			return false;
+		}
 
 	}
 
 	public void listAllUsers() throws SQLException {
 		String sql = "select * from users;";
 		try {
-		PreparedStatement ps = connection.prepareStatement(sql);
-		ResultSet rs = ps.executeQuery();
-		System.out.println("username\tpassword\tfull name");
-		System.out.println("-------------------------------------------");
-		while (rs.next()) {
-		System.out.printf("%-15s %-15s %-15s %n", rs.getString(1), rs.getString(2), rs.getString(3));
-		}
-		rs.close();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			System.out.println("username\tpassword\tfull name");
+			System.out.println("-------------------------------------------");
+			while (rs.next()) {
+				System.out.printf("%-15s %-15s %-15s %n", rs.getString(1), rs.getString(2), rs.getString(3));
+			}
+			rs.close();
 		} catch (SQLException e) {
-		System.out.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 	}
 
@@ -126,54 +159,50 @@ public class DB {
 	public void editUser(String userName, String password, String fullName) throws SQLException {
 		String sql = "";
 		if (password.equals("") && fullName.equals("")) {
-		return;
+			return;
 		}
 		if (!password.equals("") && !fullName.equals("")) {
-         	 sql = "update users set password = (?), full_name = (?) where username = (?)";
-		}
-		else if (password.equals("")) {
-		sql = "update users set full_name = (?) where username = (?)";
-		}
-		else {
-		sql = "update users set password = (?) where username = (?)";
+			sql = "update users set password = (?), full_name = (?) where username = (?)";
+		} else if (password.equals("")) {
+			sql = "update users set full_name = (?) where username = (?)";
+		} else {
+			sql = "update users set password = (?) where username = (?)";
 		}
 		try {
 			connect();
-                	PreparedStatement ps = connection.prepareStatement(sql);
-                	if (!password.equals("") && !fullName.equals("")) {
-			ps.setString(1, password);
-			ps.setString(2, fullName);
-			ps.setString(3, userName);
-		        }
-               		else  if (password.equals("")) {
-			ps.setString(1, fullName);
-			ps.setString(2, userName);
-			}
-			else {
-			ps.setString(1, password);
-			ps.setString(2, userName);
+			PreparedStatement ps = connection.prepareStatement(sql);
+			if (!password.equals("") && !fullName.equals("")) {
+				ps.setString(1, password);
+				ps.setString(2, fullName);
+				ps.setString(3, userName);
+			} else if (password.equals("")) {
+				ps.setString(1, fullName);
+				ps.setString(2, userName);
+			} else {
+				ps.setString(1, password);
+				ps.setString(2, userName);
 			}
 			ps.executeUpdate();
 
 		} catch (SQLException e) {
-		System.out.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 
 	}
+
 	public void deleteUser(String userName) throws SQLException {
 
 		String sql = "delete from users where username = (?)";
 		try {
-		connect();
-		PreparedStatement ps = connection.prepareStatement(sql);
-		ps.setString(1, userName);
-		ps.executeUpdate();
+			connect();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, userName);
+			ps.executeUpdate();
 		} catch (SQLException e) {
-		System.out.println(e.getMessage());
+			System.out.println(e.getMessage());
 		} finally {
 			connection.close();
 		}
 	}
 }
-
 

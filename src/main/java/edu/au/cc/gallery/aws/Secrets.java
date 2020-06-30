@@ -1,4 +1,4 @@
-package edu.au.cc.gallery;
+package edu.au.cc.gallery.aws;
 
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.*; 
@@ -10,6 +10,7 @@ public class Secrets {
     public static String getSecretImageGallery() {
 
 	String secretName = "sec-image_gallery2";
+
 	Region region = Region.US_EAST_2;
 
 	// Create a Secrets Manager client
@@ -56,3 +57,4 @@ public class Secrets {
 	return getSecretValueResult.secretString();
     }
 }
+

@@ -5,7 +5,7 @@ package edu.au.cc.gallery;
 
 import edu.au.cc.gallery.tools.UserAdmin;
 import edu.au.cc.gallery.tools.UserApp;
-
+import edu.au.cc.gallery.data.*;
 import java.util.Scanner;
 import java.util.Map;
 import java.util.HashMap;
@@ -36,4 +36,5 @@ public class App {
 	}
 
 }
+
 
