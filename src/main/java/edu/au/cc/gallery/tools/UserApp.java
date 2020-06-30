@@ -20,22 +20,25 @@ public class UserApp {
     private DB db = new DB();
     private final String bucketName = "edu.au.cc.kzw0068.image-gallery";
 
-   public void addRoutes() {
+    public void addRoutes() {
 
         // get routes
         get("/", (req, res) -> homePage(req, res));
-        get("/admin", (req, res) -> adminPage(req, res));
+        get("/admin/users", (req, res) -> adminPage(req, res));
         get("/admin/addUser", (req, res) -> addUserPage(req, res));
         get("/admin/deleteUser/:user", (req, res) -> deleteUserPage(req, res));
         get("/admin/editUser/:user", (req, res) -> editUserPage(req, res));
         get("/debugSession", (req, res) -> debugSession(req, res));
+
         get("/login", (req, res) -> loginPage(req, res));
         get("/upload", (req, res) -> uploadPage(req, res));
         get("/view", (req, res) -> viewPage(req, res));
+        get("/view/:imageid", (req, res) -> viewLargeImage(req, res));
         // post routes
         post("/admin/addUser", (req, res) -> addUser(req, res));
         post("/admin/editUser", (req, res) -> editUser(req, res));
         post("/admin/deleteUser", (req, res) -> deleteUser(req, res));
+        post("/deleteImage/:imageid", (req, res) -> deleteImage(req, res));
         post("/login", (req, res) -> loginUser(req, res));
         post("/uploadImage", (req, res) -> uploadImage(req, res));
         //checks
@@ -45,6 +48,24 @@ public class UserApp {
         before("/", (req, res) -> checkUser(req, res));
 
 
+    }
+
+    private String deleteImage(Request req, Response res) throws SQLException {
+        Map<String, Object> model = new HashMap<>();
+        String imageId = req.params(":imageid");
+        Postgres postgres = new Postgres();
+        postgres.deleteImage(imageId);
+        res.redirect("/view");
+        return "";
+    }
+    private String viewLargeImage(Request req, Response res) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        S3 s3 = new S3();
+        s3.connect();
+        String imageid = req.params(":imageid");
+        String image = s3.getObject(bucketName, imageid);
+        model.put("image", image);
+        return new HandlebarsTemplateEngine().render(new ModelAndView(model, "viewLargeImage.hbs"));
     }
     private boolean isUser(String username) throws SQLException{
         Postgres postgres = new Postgres();
@@ -58,6 +79,7 @@ public class UserApp {
     }
     private void checkUser(Request req, Response res) throws SQLException {
         if (req.session().attribute("username") == null) {
+            res.redirect("/login");
             halt();
         }
         if (!isUser(req.session().attribute("username"))) {
@@ -67,7 +89,7 @@ public class UserApp {
     }
     private void checkAdmin(Request req, Response res) {
         if(!isAdmin(req.session().attribute("username"))) {
-            res.redirect("/login");
+            res.redirect("/");
             halt();
         }
     }
@@ -76,7 +98,6 @@ public class UserApp {
     }
 
     private String uploadImage(Request req, Response res) throws Exception {
-
         req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
         try (InputStream is = req.raw().getPart("uploaded_file").getInputStream()) { 
             byte[] contents = IOUtils.toByteArray(is);
@@ -104,8 +125,11 @@ public class UserApp {
         s3.connect();
         Postgres postgres = new Postgres();
         ArrayList<Image> images = postgres.viewAllImages(req.session().attribute("username"));
+
+
         for (Image image : images) {
             image.setImageString(s3.getObject(bucketName, image.getImageId()));
+            System.out.println(image.getUsername());
         }
         model.put("images", images);
         return new HandlebarsTemplateEngine().render(new ModelAndView(model, "view.hbs"));
@@ -153,20 +177,20 @@ public class UserApp {
     private String addUser(Request req, Response res) throws SQLException {
         String[] user = { req.queryParams("username"), req.queryParams("password"), req.queryParams("full_name") };
         db.createUser(user);
-        res.redirect("/admin");
+        res.redirect("/admin/users");
         return "";
     }
 
     private String editUser(Request req, Response res) throws SQLException {
         db.editUser(req.queryParams("username"), req.queryParams("password"), req.queryParams("full_name"));
-        res.redirect("/admin");
+        res.redirect("/admin/users");
 
         return "";
     }
 
     private String deleteUser(Request req, Response res) throws SQLException {
         db.deleteUser(req.queryParams("username"));
-        res.redirect("/admin");
+        res.redirect("/admin/users");
         return "";
     }
 

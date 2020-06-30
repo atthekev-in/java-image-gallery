@@ -4,22 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Gallery</title>
+    <style>
+img {
+    border: 1px solid #ddd; /* Gray border */
+    border-radius: 4px;  /* Rounded border */
+    padding: 5px; /* Some padding */
+    width: 150px; /* Set a small width */
+}
+
+/* Add a hover effect (blue shadow) */
+img:hover {
+    box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+</style>
 </head>
+
 <body>
-    <h1>Welcome User</h1>
+    <h1>Welcome {{username}}</h1>
 	<table>
 
-	{{#each images}}<tr>
-        <td><img src="data:image/jpeg;base64,{{imageString}}"><br><form action="/deleteImage" method="post" onsubmit="return confirm('Delete image?');">
-         Delete Image<input type="hidden" name="image" value="{{username}}" />
-            <input type="submit" name="delete" >
-        </form></td>
-			<td><a href="/viewSingleImage/{{username}}">View</a></td>
-			<td><a href="/admin/deleteUser/{{username}}">Delete</a></td>
-	</tr>
+	{{#each images}}
+        <td>
+        <a target="_blank" href="/view/{{imageId}}">
+        <img src="data:image/jpeg;base64,{{imageString}}">
+        </a>
+        <br>
+        <form action="/deleteImage/{{imageId}}" method="post" onsubmit="return confirm('Are you sure?');">
+         <input type="hidden" name="imageid" value="{{imageId}}" />
+            <input type="submit" name="delete" value="Delete">
+        </form>
+    </td>
 	{{/each}}
 	</table>
-
+    <hr>
+    <a href="/">Main Menu</a>
 	</body>
 </html>
+
 

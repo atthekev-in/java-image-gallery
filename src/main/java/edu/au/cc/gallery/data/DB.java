@@ -34,6 +34,18 @@ public class DB {
 		}
 
 	}
+	public void deleteImage(String sql, String imageId) throws SQLException {
+		try {
+			connect();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, imageId);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Error");
+		} finally {
+			connection.close();
+		}
+	}
 
 	public void insertImage(Image image) throws SQLException {
 		String sql = "insert into images values (?, ?);";

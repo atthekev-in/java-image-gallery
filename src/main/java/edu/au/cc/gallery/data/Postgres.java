@@ -20,5 +20,9 @@ public class Postgres {
     public void uploadImage(Image image) throws SQLException {
         db.insertImage(image);
     }
+    public void deleteImage(String imageId) throws SQLException {
+        String sql = "delete from images where imageid = ?;";
+        db.deleteImage(sql, imageId);
+    }
 
 }
