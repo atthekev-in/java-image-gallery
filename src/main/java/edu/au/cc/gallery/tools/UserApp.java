@@ -133,7 +133,6 @@ public class UserApp {
 
         for (Image image : images) {
             image.setImageString(s3.getObject(bucketName, image.getImageId()));
-            System.out.println(image.getUsername());
         }
         model.put("images", images);
         return new HandlebarsTemplateEngine().render(new ModelAndView(model, "view.hbs"));
